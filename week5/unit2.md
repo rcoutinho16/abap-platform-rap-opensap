@@ -196,10 +196,10 @@ CLASS zcl_ce_rap_agency_#### DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES if_oo_adt_classrun.    
+    INTERFACES if_oo_adt_classrun.
 
-    TYPES t_agency_range TYPE RANGE OF zrap_####z_travel_agency_es5-agencyid.
-    TYPES t_business_data TYPE TABLE OF zrap_####z_travel_agency_es5.
+    TYPES t_agency_range TYPE RANGE OF ZSC_RAP_AGENCY_####=>tys_z_travel_agency_es_5_type-agency_id.
+    TYPES t_business_data TYPE ZSC_RAP_AGENCY_####=>tyt_z_travel_agency_es_5_type.
 
     METHODS get_agencies
       IMPORTING
@@ -233,7 +233,7 @@ CLASS zcl_ce_rap_agency_#### IMPLEMENTATION.
     DATA filter_conditions  TYPE if_rap_query_filter=>tt_name_range_pairs .
     DATA ranges_table TYPE if_rap_query_filter=>tt_range_option .
     ranges_table = VALUE #( (  sign = 'I' option = 'GE' low = '070015' ) ).
-    filter_conditions = VALUE #( ( name = 'AGENCYID'  range = ranges_table ) ).
+    filter_conditions = VALUE #( ( name = 'AGENCY_ID'  range = ranges_table ) ).
 
     TRY.
         get_agencies(
@@ -272,16 +272,16 @@ CLASS zcl_ce_rap_agency_#### IMPLEMENTATION.
     DATA(http_destination) = cl_http_destination_provider=>create_by_url( i_url = 'https://sapes5.sapdevcenter.com' ).
     http_client = cl_web_http_client_manager=>create_by_http_destination( i_destination = http_destination ).
 
-    service_consumption_name = to_upper( 'ZSC_RAP_AGENCY_####' ).
-
-    <b>odata_client_proxy</b> = cl_web_odata_client_factory=>create_v2_remote_proxy(
-      EXPORTING
-        iv_service_definition_name = service_consumption_name
-        io_http_client             = http_client
-        iv_relative_service_root   = '/sap/opu/odata/sap/ZAGENCYCDS_SRV/' ).
+    odata_client_proxy = /iwbep/cl_cp_factory_remote=>create_v2_remote_proxy(
+       EXPORTING
+          is_proxy_model_key       = VALUE #( repository_id       = 'DEFAULT'
+                                              proxy_model_id      = 'ZSC_RAP_AGENCY_####'
+                                              proxy_model_version = '0001' )
+         io_http_client             = http_client
+         iv_relative_service_root   = '/sap/opu/odata/sap/ZAGENCYCDS_SRV/' ).
 
     " Navigate to the resource and create a request for the read operation
-    <b>read_list_request</b> = odata_client_proxy->create_resource_for_entity_set( 'Z_TRAVEL_AGENCY_ES5' )->create_request_for_read( ).
+    read_list_request = odata_client_proxy->create_resource_for_entity_set( 'Z_TRAVEL_AGENCY_ES_5' )->create_request_for_read( ).
 
     " Create the filter tree
     filter_factory = read_list_request->create_filter_factory( ).
